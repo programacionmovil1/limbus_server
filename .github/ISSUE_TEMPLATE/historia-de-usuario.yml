@@ -1,0 +1,56 @@
+name: Historias de Usuario
+description: Plantilla para creación de historias de usuario
+title: "[Descripción breve de la historia]"
+labels: ["user history"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Formato estándar para historias de usuario:**
+        Como [rol]
+        Quiero [objetivo/necesidad]
+        Para que [beneficio/valor]
+  - type: textarea
+    id: rol
+    attributes:
+      label: "Como (Rol del usuario)"
+      placeholder: "Ej: Como usuario registrado / Como administrador / Como cliente frecuente"
+    validations:
+      required: true
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "Quiero (Objetivo o necesidad)"
+      placeholder: "Ej: poder filtrar los productos por categoría / recibir notificaciones por email"
+    validations:
+      required: true
+  - type: textarea
+    id: beneficio
+    attributes:
+      label: "Para que (Beneficio o valor)"
+      placeholder: "Ej: pueda encontrar más rápido lo que busco / no me pierda actualizaciones importantes"
+    validations:
+      required: true
+  - type: textarea
+    id: criterios_aceptacion
+    attributes:
+      label: Criterios de Aceptación (Checklist)
+      placeholder: |
+        - [ ] Debe incluir filtros por categoría y precio
+        - [ ] Los resultados deben actualizarse en tiempo real
+        - [ ] El filtrado debe funcionar en móvil y escritorio
+    validations:
+      required: true
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto Adicional (Opcional)
+      placeholder: Información adicional que ayude a entender la necesidad
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Capturas de pantalla o referencias (Opcional)
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por contribuir a mejorar el producto! Esta historia será priorizada y planificada en próximos sprints.

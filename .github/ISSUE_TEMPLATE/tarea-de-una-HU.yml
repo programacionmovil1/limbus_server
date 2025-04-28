@@ -1,0 +1,61 @@
+name: Tareas Técnicas
+description: Plantilla para desglosar tareas específicas de una historia de usuario
+title: "[Tarea] Descripción breve de la acción"
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Formato estándar para tareas técnicas:**
+        - Acción específica y medible
+        - Vinculada a una historia de usuario (#ID)
+        - Criterios técnicos claros
+  - type: textarea
+    id: objetivo_tarea
+    attributes:
+      label: "¿Qué se debe implementar/corregir?"
+      placeholder: "Ej: Implementar endpoint GET /api/users | Corregir error de timeout en el login"
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: "Pasos para completar la tarea"
+      placeholder: |
+        1. Crear migración para la tabla X
+        2. Desarrollar servicio de validación
+        3. Integrar con el frontend en componente Y
+    validations:
+      required: true
+  - type: textarea
+    id: criterios_tecnicos
+    attributes:
+      label: "Criterios de Aceptación Técnica"
+      placeholder: |
+        - [ ] Cobertura de tests ≥ 80%
+        - [ ] Documentación Swagger actualizada
+        - [ ] Compatible con versiones anteriores
+    validations:
+      required: true
+  - type: textarea
+    id: historia_relacionada
+    attributes:
+      label: "Historia de Usuario Relacionada (Issue #)"
+      placeholder: "Ej: #45 | Nombre de la historia"
+    validations:
+      required: true
+  - type: textarea
+    id: notas_tecnicas
+    attributes:
+      label: "Notas Técnicas (Opcional)"
+      placeholder: "Ej: Usar librería XYZ | Patrón de diseño a aplicar"
+  - type: textarea
+    id: recursos
+    attributes:
+      label: "Recursos/Enlaces (Opcional)"
+      placeholder: "Ej: Figma: [link] | Documentación API: [link]"
+  - type: markdown
+    attributes:
+      value: |
+        **Esta tarea será asignada y monitoreada en el sprint actual.**
+        ¡Gracias por mantener el trabajo organizado! 🚀

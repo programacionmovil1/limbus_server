@@ -1,0 +1,46 @@
+name: Reportes de Bugs
+description: Reporte de un bug
+title: "[Describe tu problema en frases cortas]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Por favor complete las secciones de abajo para ayudar a todos identificar y arreglar el error
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe tu problema
+      placeholder: Cuando hago clic aquí sucede esto
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. Ir a la página X
+        2. Haga clic aquí
+        3. Haz clic ahí
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: ¿Cuál fue el resultado esperado?
+      placeholder: Esperaba que pasara esto
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Ponga aquí cualquier captura de pantalla o vídeo (opcional)
+  - type: dropdown
+    id: assign
+    attributes:
+      label: "¿Le gustaría trabajar en este asunto?"
+      options:
+        - "Si"
+        - "No"
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por informarnos sobre este problema. Le responderemos lo antes posible.

@@ -1,0 +1,77 @@
+name: Épica
+description: Plantilla para creación de Épicas
+title: "[Descripción breve de la épica]"
+labels: ["epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Formato estándar para Épicas:**
+        Como [rol]
+        Quiero [objetivo general/necesidad estratégica]
+        Para que [impacto/valor estratégico]
+  - type: textarea
+    id: rol
+    attributes:
+      label: "Como (Rol principal o stakeholder)"
+      placeholder: "Ej: Como empresa / Como área comercial / Como equipo de desarrollo"
+    validations:
+      required: true
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "Quiero (Objetivo estratégico)"
+      placeholder: "Ej: unificar los sistemas de gestión de clientes / mejorar la experiencia móvil / aumentar la retención de usuarios"
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: "Para que (Impacto o valor estratégico)"
+      placeholder: "Ej: reducir la fuga de clientes en un 20% / lograr una mejor integración entre áreas / posicionarnos como líderes en UX"
+    validations:
+      required: true
+  - type: textarea
+    id: alcance
+    attributes:
+      label: "Alcance (Componentes principales)"
+      placeholder: |
+        - Módulo de gestión de clientes
+        - Sistema de notificaciones multiplataforma
+        - Panel de analíticas integrado
+    validations:
+      required: true
+  - type: textarea
+    id: historias_relacionadas
+    attributes:
+      label: "Historias de Usuario/Features Relacionadas (Opcional)"
+      placeholder: |
+        Lista de issues relacionados (ej: #123, #456) o nuevas features:
+        - [ ] Sistema de autenticación mejorado
+        - [ ] Migración de base de datos
+        - [ ] Integración con API de pagos
+  - type: textarea
+    id: kpis
+    attributes:
+      label: "KPIs/Métricas de Éxito"
+      placeholder: |
+        - Aumentar retención de usuarios en 15%
+        - Reducir tiempo de carga en 40%
+        - Alcanzar 90% de satisfacción en encuestas
+    validations:
+      required: true
+  - type: textarea
+    id: contexto_estrategico
+    attributes:
+      label: "Contexto Estratégico (Opcional)"
+      placeholder: Información sobre alineación con objetivos empresariales, restricciones técnicas o dependencias
+  - type: textarea
+    id: documentacion
+    attributes:
+      label: "Documentación de Referencia (Opcional)"
+      placeholder: Enlaces a documentos técnicos, estudios de mercado o análisis relevantes
+  - type: markdown
+    attributes:
+      value: |
+        **Nota:** Esta épica será descompuesta en historias de usuario y priorizada en el roadmap del producto.
+        ¡Gracias por contribuir al plan estratégico!
