@@ -1,7 +1,7 @@
 name: Historias de Usuario
 description: Plantilla para creación de historias de usuario
 title: "[Descripción breve de la historia]"
-labels: ["user history"]
+labels: ["story"]
 body:
   - type: markdown
     attributes:
