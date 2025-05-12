@@ -1,0 +1,6 @@
+ktor:
+    application:
+        modules:
+            - com.limbus_server.auth.ApplicationKt.module
+    deployment:
+        port: 8083
