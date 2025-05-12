@@ -1,69 +1,48 @@
-package com.limbus_server.auth.infrastructure.config
+package com.limbus_server.auth.infrastructure.config // Paquete corregido
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.codahale.metrics.*
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.http.content.*
-import io.ktor.server.metrics.dropwizard.*
-import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.openapi.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.plugins.swagger.*
+import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
-import io.ktor.server.sse.*
-import io.ktor.server.websocket.*
-import io.ktor.sse.*
-import io.ktor.websocket.*
 import io.micrometer.prometheus.*
-import java.sql.Connection
-import java.sql.DriverManager
-import java.time.Duration
-import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
-import org.koin.dsl.module
-import org.koin.ktor.plugin.Koin
-import org.koin.logger.slf4jLogger
 import org.slf4j.event.*
 
 fun Application.configureMonitoring() {
+
+    // Configuración de Micrometer Metrics con Prometheus
+    // Esto expone métricas de la aplicación (como el número de peticiones, latencia, etc.)
+    // en un formato que Prometheus puede recolectar.
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    
+
     install(MicrometerMetrics) {
+        // Asocia el registro de Prometheus con el plugin de Micrometer de Ktor
         registry = appMicrometerRegistry
-        // ...
+        // Aquí podrías añadir configuraciones adicionales para las métricas,
+        // como tags personalizados, filtros, etc.
+        // por ejemplo: distributionStatisticExpiry = 10.seconds
     }
-    install(DropwizardMetrics) {
-        Slf4jReporter.forRegistry(registry)
-            .outputTo(this@configureMonitoring.log)
-            .convertRatesTo(TimeUnit.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .build()
-            .start(10, TimeUnit.SECONDS)
-    }
+
+    // Configuración de Call Logging
+    // Esto registra información sobre cada petición entrante en los logs de la aplicación.
     install(CallLogging) {
-        level = Level.INFO
-        filter { call -> call.request.path().startsWith("/") }
+        level = Level.INFO // Nivel de log para las peticiones (INFO, DEBUG, etc.)
+        // Puedes añadir filtros si solo quieres loguear ciertas peticiones
+        filter { call -> call.request.path().startsWith("/") } // Loguea todas las peticiones que empiezan con "/"
+        // Puedes añadir MDC (Mapped Diagnostic Context) para incluir información adicional en los logs
+        // mdc("user-id") { call -> call.principal<JWTPrincipal>()?.payload?.subject }
     }
+
+    // Define un endpoint para exponer las métricas de Prometheus
+    // Prometheus configurado externamente (ej: en Docker Compose) recolectará las métricas desde esta URL.
     routing {
-        get("/metrics-micrometer") {
-            call.respond(appMicrometerRegistry.scrape())
+        get("/metrics") { // Endpoint donde se exponen las métricas
+            call.respond(appMicrometerRegistry.scrape()) // Responde con los datos de las métricas en formato Prometheus
         }
     }
+
+    // Se elimina la configuración de Dropwizard Metrics ya que se está usando Micrometer.
+    // Si realmente necesitas Dropwizard, asegúrate de tener la dependencia correcta
+    // (ktor-server-metrics) y su reporter (Slf4jReporter).
 }

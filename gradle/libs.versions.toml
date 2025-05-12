@@ -8,6 +8,8 @@ ktor-version = "3.1.3"
 logback-version = "1.4.14"
 postgres-version = "42.7.5"
 prometheus-version = "1.6.13"
+hikari-version = "5.1.0"
+kotlinx-datetime-version = "0.6.0"
 
 [libraries]
 ktor-server-rate-limiting = { module = "io.github.flaxoos:ktor-server-rate-limiting", version = "2.2.1" }
@@ -21,6 +23,8 @@ ktor-client-serialization-kotlinx-json = { module = "io.ktor:ktor-client-seriali
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed-version" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin-version" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin-version" }
+hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-version" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime-version" }
 
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
 h2 = { module = "com.h2database:h2", version.ref = "h2-version" }

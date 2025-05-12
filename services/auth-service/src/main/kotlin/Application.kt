@@ -2,6 +2,7 @@ import com.limbus_server.auth.infrastructure.config.configureAdministration
 import com.limbus_server.auth.infrastructure.config.configureHTTP
 import com.limbus_server.auth.infrastructure.config.configureMonitoring
 import com.limbus_server.auth.infrastructure.config.configureSerialization
+import com.limbus_server.auth.infrastructure.database.configureDatabases
 import com.limbus_server.auth.infrastructure.routing.configureRouting
 import com.limbus_server.auth.infrastructure.security.configureSecurity
 import io.ktor.server.application.*
@@ -18,4 +19,5 @@ fun Application.module() {
     configureSecurity()
     configureHTTP()
     configureRouting()
+    configureDatabases()
 }

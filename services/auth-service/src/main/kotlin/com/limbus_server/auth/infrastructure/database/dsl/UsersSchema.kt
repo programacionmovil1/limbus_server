@@ -1,62 +1,38 @@
 package com.limbus_server.auth.infrastructure.database.dsl
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-@Serializable
-data class ExposedUser(val name: String, val age: Int)
+object UsersSchema : Table("users") { // Nombre de la tabla en la base de datos
+    // Define las columnas de la tabla
+    // id: Clave primaria autoincremental
+    val id = integer("id").autoIncrement()
+    // email: Correo electrónico del usuario (VARCHAR, longitud, único, no nulo)
+    val email = varchar("email", length = 255).uniqueIndex() // Usar email como identificador único
+    // passwordHash: Hash de la contraseña (VARCHAR, longitud suficiente para el hash)
+    val passwordHash = varchar("password_hash", length = 255) // Almacena el hash de la contraseña
+    // name: Nombre del usuario (VARCHAR, longitud, opcional/nullable si no es obligatorio)
+    val name = varchar("name", length = 100).nullable() // Nombre puede ser opcional
 
-class UserService(database: Database) {
-    object Users : Table() {
-        val id = integer("id").autoIncrement()
-        val name = varchar("name", length = 50)
-        val age = integer("age")
+    // createdAt: Marca de tiempo de creación (usando Exposed Kotlin DateTime)
+    // Convierte el Instant a LocalDateTime usando la zona horaria UTC
+    val createdAt = datetime("created_at").clientDefault { Clock.System.now().toLocalDateTime(TimeZone.UTC) }
 
-        override val primaryKey = PrimaryKey(id)
-    }
+    // updatedAt: Marca de tiempo de última actualización (opcional)
+    // Si necesitas establecer un valor por defecto para la actualización, también podrías usar clientDefault
+    val updatedAt = datetime("updated_at").nullable()
 
-    init {
-        transaction(database) {
-            SchemaUtils.create(Users)
-        }
-    }
+    // Define la clave primaria de la tabla
+    override val primaryKey = PrimaryKey(id)
 
-    suspend fun create(user: ExposedUser): Int = dbQuery {
-        Users.insert {
-            it[name] = user.name
-            it[age] = user.age
-        }[Users.id]
-    }
-
-    suspend fun read(id: Int): ExposedUser? {
-        return dbQuery {
-            Users.selectAll()
-                .where { Users.id eq id }
-                .map { ExposedUser(it[Users.name], it[Users.age]) }
-                .singleOrNull()
-        }
-    }
-
-    suspend fun update(id: Int, user: ExposedUser) {
-        dbQuery {
-            Users.update({ Users.id eq id }) {
-                it[name] = user.name
-                it[age] = user.age
-            }
-        }
-    }
-
-    suspend fun delete(id: Int) {
-        dbQuery {
-            Users.deleteWhere { Users.id.eq(id) }
-        }
-    }
-
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
+    // Puedes añadir aquí otras columnas relevantes para la autenticación si es necesario,
+    // como roles, estado de la cuenta (activo/inactivo), etc.
+    // val role = varchar("role", length = 50).default("USER")
+    // val isActive = bool("is_active").default(true)
 }
 
+// El resto de comentarios sobre ExposedUser, UserService y dbQuery se mantienen.
+// Esta lógica debe ir en infrastructure/repository/UserRepositoryImpl.kt.

@@ -47,7 +47,10 @@ dependencies {
     implementation(libs.postgresql) // Driver de PostgreSQL
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
-     implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.kotlinx.datetime)
+
+    implementation(libs.hikari.cp)
 
     // --- Koin (Inyección de Dependencias, si la usas en este servicio) (usando el catálogo) ---
     implementation(libs.koin.ktor)
@@ -63,10 +66,14 @@ dependencies {
     implementation(libs.ktor.server.openapi)
     implementation(libs.ktor.server.swagger)
 
+    // --- Monitoring (Micrometer y Prometheus) (usando el catálogo) ---
+    implementation(libs.ktor.server.metrics.micrometer) // Plugin de Ktor para integrar Micrometer
+    implementation(libs.micrometer.registry.prometheus) // Registro de Prometheus para Micrometer
+
     // --- Testing (usando el catálogo) ---
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
     // Si usas Koin para testing
-     testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test)
     // testImplementation(libs.koin.test.junit4) // O junit5 si usas JUnit 5 -> Asegúrate de que esté en libs.versions.toml
 }
