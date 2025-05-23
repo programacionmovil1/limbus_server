@@ -10,6 +10,7 @@ postgres-version = "42.7.5"
 prometheus-version = "1.6.13"
 hikari-version = "5.1.0"
 kotlinx-datetime-version = "0.6.0"
+jbcrypt-version = "0.4"
 
 [libraries]
 ktor-server-rate-limiting = { module = "io.github.flaxoos:ktor-server-rate-limiting", version = "2.2.1" }
@@ -25,6 +26,7 @@ koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin-version" 
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin-version" }
 hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-version" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime-version" }
+jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt-version" }
 
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
 h2 = { module = "com.h2database:h2", version.ref = "h2-version" }

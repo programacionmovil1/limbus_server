@@ -6,6 +6,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+// Define el objeto que representa la tabla de usuarios en la base de datos
+// Este objeto extiende Table de Exposed y define las columnas de la tabla.
 object UsersSchema : Table("users") { // Nombre de la tabla en la base de datos
     // Define las columnas de la tabla
     // id: Clave primaria autoincremental
@@ -22,8 +24,13 @@ object UsersSchema : Table("users") { // Nombre de la tabla en la base de datos
     val createdAt = datetime("created_at").clientDefault { Clock.System.now().toLocalDateTime(TimeZone.UTC) }
 
     // updatedAt: Marca de tiempo de última actualización (opcional)
+    // Usa la función 'datetime' importada de 'org.jetbrains.exposed.sql.kotlin.datetime'
     // Si necesitas establecer un valor por defecto para la actualización, también podrías usar clientDefault
     val updatedAt = datetime("updated_at").nullable()
+
+    // Nuevas columnas para el estado de verificación del email y bloqueo de cuenta
+    val isEmailVerified = bool("is_email_verified").default(false) // Indica si el email del usuario ha sido verificado
+    val isAccountLocked = bool("is_account_locked").default(false) // Indica si la cuenta del usuario está bloqueada
 
     // Define la clave primaria de la tabla
     override val primaryKey = PrimaryKey(id)

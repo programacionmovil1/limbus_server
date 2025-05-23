@@ -14,7 +14,8 @@ version = "0.0.1" // Específico para este módulo
 
 application {
     // Ajusta a tu paquete y nombre de archivo principal del servicio de autenticación
-    mainClass.set("com.limbus_server.auth.ApplicationKt")
+//    mainClass.set("com.limbus_server.auth.ApplicationKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 repositories {
@@ -42,6 +43,7 @@ dependencies {
     // --- Seguridad (CRUCIAL para auth-service) (usando el catálogo) ---
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt) // Para manejar la autenticación JWT
+    implementation(libs.jbcrypt)
 
     // --- Base de Datos (si el servicio de auth gestiona usuarios y credenciales) (usando el catálogo) ---
     implementation(libs.postgresql) // Driver de PostgreSQL

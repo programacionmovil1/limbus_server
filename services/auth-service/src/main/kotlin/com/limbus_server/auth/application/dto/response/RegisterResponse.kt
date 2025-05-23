@@ -19,7 +19,11 @@ data class RegisterResponse(
 
     // Opcional: Tiempo de expiración del token de acceso en segundos.
     // Útil para que el cliente sepa cuándo refrescar el token.
-    val expiresIn: Long? = null // Marcado como nullable si decides no incluirlo siempre
+    val expiresIn: Long? = null, // Marcado como nullable si decides no incluirlo siempre
+
+    // TEMPORAL PARA DESARROLLO/DEBUGGING: El token de verificación de email.
+    // ¡REMUEVE ESTO PARA PRODUCCIÓN! No debes exponer tokens de verificación en la respuesta de registro por seguridad.
+    val verificationToken: String? = null // Añadido temporalmente
 )
 
 // Notas:

@@ -1,81 +1,124 @@
 package com.limbus_server.auth.infrastructure.routing
 
+import com.limbus_server.auth.application.dto.request.*
+import com.limbus_server.auth.application.dto.response.*
+import com.limbus_server.auth.application.exception.*
+import com.limbus_server.auth.application.service.AuthService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 
+// Esta función configura el routing principal y los plugins relacionados con rutas
 fun Application.configureRouting() {
 
+    // Inyecta el AuthService usando Koin
+    val authService by inject<AuthService>()
+
+    // Configuración de StatusPages para manejar excepciones y errores HTTP
+    // Esto proporciona respuestas consistentes para diferentes códigos de estado o excepciones.
     install(StatusPages) {
-        // Maneja cualquier excepción no capturada y responde con un error 500 Internal Server Error
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause" , status = HttpStatusCode.InternalServerError)
-            // Considera loguear la excepción aquí para debugging
-            // call.application.log.error("Unhandled exception", cause)
+        // Manejo de excepciones personalizadas de negocio
+        exception<UserAlreadyExistsException> { call, cause ->
+            call.respond(HttpStatusCode.Conflict, ErrorResponse(message = cause.message ?: "User already exists"))
+            call.application.log.warn("UserAlreadyExistsException: ${cause.message}")
         }
+        exception<InvalidCredentialsException> { call, cause ->
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(message = cause.message ?: "Invalid credentials"))
+            call.application.log.warn("InvalidCredentialsException: ${cause.message}")
+        }
+        exception<UserNotFoundException> { call, cause ->
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(message = cause.message ?: "User not found"))
+            call.application.log.warn("UserNotFoundException: ${cause.message}")
+        }
+        exception<InvalidTokenException> { call, cause ->
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(message = cause.message ?: "Invalid token"))
+            call.application.log.warn("InvalidTokenException: ${cause.message}")
+        }
+        exception<TokenExpiredException> { call, cause ->
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(message = cause.message ?: "Token expired"))
+            call.application.log.warn("TokenExpiredException: ${cause.message}")
+        }
+        exception<EmailNotVerifiedException> { call, cause ->
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse(message = cause.message ?: "Email not verified"))
+            call.application.log.warn("EmailNotVerifiedException: ${cause.message}")
+        }
+        exception<AccountLockedException> { call, cause ->
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse(message = cause.message ?: "Account locked"))
+            call.application.log.warn("AccountLockedException: ${cause.message}")
+        }
+
+        // Maneja cualquier otra excepción no capturada y responde con un error 500 Internal Server Error
+        exception<Throwable> { call, cause ->
+            call.respondText(text = "500: Internal Server Error - ${cause.message}" , status = HttpStatusCode.InternalServerError)
+            call.application.log.error("Unhandled exception", cause) // Loguea la excepción para debugging
+        }
+
         // Puedes añadir manejo para otros códigos de estado si es necesario, ej:
-        // status(HttpStatusCode.NotFound) { call, status ->
-        //     call.respondText(text = "404: Page Not Found", status = status)
-        // }
+        status(HttpStatusCode.NotFound) { call, status ->
+            call.respondText(text = "404: Page Not Found", status = status)
+        }
     }
 
     // Define el bloque principal de routing
     routing {
-        // Aquí se definirán las rutas específicas de autenticación.
-        // Es buena práctica agrupar rutas relacionadas.
-        // Por ejemplo, puedes usar una ruta base como /auth
+        // Ruta raíz que responde con un mensaje de bienvenida
+        get("/") {
+            call.respondText("Bienvenido a Auth Service!", status = HttpStatusCode.OK)
+        }
 
         // Define las rutas de autenticación dentro de un bloque route
         route("/auth") {
-            // Ejemplo de ruta para registro de usuario
-            // Debería recibir un DTO de registro y llamar a un servicio de aplicación
+            // Ruta para registro de usuario
             post("/register") {
-                // TODO: Implementar lógica de registro
-                // 1. Recibir y validar el DTO de registro (ej: RegisterRequest)
-                // val registerRequest = call.receive<RegisterRequest>()
-                // 2. Llamar al servicio de aplicación de autenticación para registrar al usuario
-                // val userId = authService.registerUser(registerRequest.toDomainModel())
-                // 3. Responder con el resultado (ej: ID del usuario creado, o un DTO de éxito)
-                // call.respond(HttpStatusCode.Created, mapOf("userId" to userId))
-                call.respondText("Endpoint de registro de usuario", status = HttpStatusCode.OK) // Placeholder
+                val request = call.receive<RegisterRequest>()
+                val response = authService.registerUser(request.email, request.password, request.name)
+                call.respond(HttpStatusCode.Created, response)
             }
 
-            // Ejemplo de ruta para inicio de sesión
-            // Debería recibir un DTO de login y devolver tokens (JWT)
+            // Ruta para inicio de sesión
             post("/login") {
-                // TODO: Implementar lógica de login
-                // 1. Recibir y validar el DTO de login (ej: LoginRequest)
-                // val loginRequest = call.receive<LoginRequest>()
-                // 2. Llamar al servicio de aplicación para autenticar al usuario y generar tokens
-                // val tokens = authService.loginUser(loginRequest.email, loginRequest.password)
-                // 3. Responder con los tokens (ej: AuthResponse con accessToken y refreshToken)
-                // call.respond(HttpStatusCode.OK, tokens)
-                call.respondText("Endpoint de inicio de sesión", status = HttpStatusCode.OK) // Placeholder
+                val request = call.receive<LoginRequest>()
+                val response = authService.loginUser(request.email, request.password)
+                call.respond(HttpStatusCode.OK, response)
             }
 
-            // Ejemplo de ruta para refrescar tokens
-            // Debería recibir un refresh token y devolver un nuevo access token (y quizás refresh token)
+            // Ruta para refrescar tokens
             post("/refresh-token") {
-                // TODO: Implementar lógica de refresh token
-                // 1. Recibir el refresh token (probablemente en el cuerpo de la petición o una cookie)
-                // val refreshToken = call.receive<RefreshTokenRequest>().token
-                // 2. Llamar al servicio de aplicación para validar el refresh token y generar nuevos tokens
-                // val newTokens = authService.refreshAccessToken(refreshToken)
-                // 3. Responder con los nuevos tokens
-                // call.respond(HttpStatusCode.OK, newTokens)
-                call.respondText("Endpoint para refrescar tokens", status = HttpStatusCode.OK) // Placeholder
+                val request = call.receive<RefreshTokenRequest>()
+                val response = authService.refreshAccessToken(request.refreshToken)
+                call.respond(HttpStatusCode.OK, response)
             }
 
-            // Puedes añadir otras rutas relacionadas con autenticación aquí, ej:
-            // post("/forgot-password") { ... }
-            // post("/reset-password") { ... }
-            // get("/verify-email") { ... }
+            // Ruta para iniciar el proceso de "Olvidé mi contraseña"
+            post("/forgot-password") {
+                val request = call.receive<ForgotPasswordRequest>()
+                // CAMBIO AQUÍ: Captura la respuesta del servicio y la devuelve.
+                val response = authService.initiatePasswordReset(request.email)
+                call.respond(HttpStatusCode.OK, response) // Ahora responde con PasswordResetInitiateResponse
+            }
+
+            // Ruta para restablecer la contraseña
+            post("/reset-password") {
+                val request = call.receive<ResetPasswordRequest>()
+                authService.resetPassword(request.resetToken, request.newPassword)
+                call.respond(HttpStatusCode.OK, SuccessResponse("Password has been reset successfully."))
+            }
+
+            // Ruta para verificar el correo electrónico
+            post("/verify-email") {
+                val request = call.receive<VerifyEmailRequest>()
+                authService.verifyEmail(request.verificationToken)
+                call.respond(HttpStatusCode.OK, SuccessResponse("Email verified successfully."))
+            }
+
+            // Puedes añadir otras rutas relacionadas con autenticación aquí.
         }
 
-        // Si necesitas alguna otra ruta general para el servicio de auth que no sea /auth, defínela aquí.
-        // Por ejemplo, un health check simple:
+        // Health check simple para el servicio
         get("/health") {
             call.respondText("Auth Service is healthy!", status = HttpStatusCode.OK)
         }

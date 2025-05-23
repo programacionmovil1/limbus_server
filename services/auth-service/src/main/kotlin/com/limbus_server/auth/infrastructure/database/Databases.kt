@@ -4,12 +4,14 @@ import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import com.limbus_server.auth.infrastructure.database.dsl.UsersSchema
+import com.limbus_server.auth.infrastructure.database.dsl.RefreshTokensSchema
+import com.limbus_server.auth.infrastructure.database.dsl.VerificationTokensSchema
+import com.limbus_server.auth.infrastructure.database.dsl.PasswordResetTokensSchema
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.server.config.*
 
-// Esta función configura e inicializa la conexión a la base de datos
-fun Application.configureDatabases() {
+// Esta función configura e inicializa la conexión a la base de datos y crea las tablas.
+fun Application.configureDatabases(): Database { // Devuelve database
     // Obtiene la configuración de la base de datos desde application.yaml
     val dbConfig = environment.config.config("database") // Asume que la configuración de BD está bajo 'database'
 
@@ -32,24 +34,32 @@ fun Application.configureDatabases() {
     val database = Database.connect(dataSource)
 
     // Inicializa el esquema de la base de datos (crea tablas si no existen)
-    // Se ejecuta dentro de una transacción
+    // Se ejecuta dentro de una transacción para asegurar atomicidad.
     transaction(database) {
-        SchemaUtils.create(UsersSchema) // Crea la tabla UsersSchema si no existe
-        // Si tienes otras tablas relacionadas con autenticación (ej: tokens de refresco), créalas aquí también
-        // SchemaUtils.create(RefreshTokensSchema)
+        // Crea la tabla UsersSchema si no existe
+        SchemaUtils.create(UsersSchema)
+        // Crea las tablas para los diferentes tipos de tokens si no existen
+        SchemaUtils.create(RefreshTokensSchema)
+        SchemaUtils.create(VerificationTokensSchema)
+        SchemaUtils.create(PasswordResetTokensSchema)
+
+        // Puedes añadir aquí lógica de inicialización de datos si es necesario,
+        // como la creación de un usuario administrador inicial.
+        // if (UsersSchema.selectAll().count() == 0L) {
+        //     UsersSchema.insert {
+        //         it[email] = "admin@example.com"
+        //         it[passwordHash] = "hashed_admin_password" // Asegúrate de hashear esto correctamente
+        //         it[name] = "Admin"
+        //     }
+        // }
     }
 
-    // Puedes loguear que la conexión fue exitosa
-    log.info("Database initialized successfully")
+    // Puedes loguear que la conexión y la inicialización fueron exitosas
+    log.info("Database initialized successfully and schemas created/updated.")
 
-    // Las rutas y la lógica de negocio que usan la base de datos
-    // se definirán en otras capas (routing, repository, service).
-    // La conexión 'database' o el 'dataSource' se proporcionarán
-    // a través de inyección de dependencias (Koin).
+    return database // Devuelve la instancia de Database
 }
 
 // Nota: La función connectToPostgres original con lógica de H2 embebido
 // puede ser útil para testing, pero la configuración principal debería usar HikariCP
 // y leer de application.yaml para entornos de desarrollo/producción.
-// Si necesitas la lógica de H2 para tests, puedes mantener esa función en un archivo separado
-// o dentro de los sources de test.
