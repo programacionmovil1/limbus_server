@@ -1,0 +1,36 @@
+ktor:
+    application:
+        modules:
+            - com.limbus_server.auth.ApplicationKt.module
+    deployment:
+        port: 8083 # Puerto en el que se ejecutará tu servicio de autenticación
+
+jwt:
+    # Propiedades para la configuración de JSON Web Tokens (JWT)
+    # Estas propiedades son utilizadas por el TokenService para firmar y verificar tokens.
+    audience: "your_app_client_id" # <--- ¡IMPORTANTE! Reemplaza con la audiencia de tu aplicación cliente (ej: "limbus-mobile-app")
+    issuer: "https://your-auth-service-domain.com" # <--- ¡IMPORTANTE! Reemplaza con el dominio de tu servicio de autenticación (ej: "https://auth.limbus-server.com")
+    secret: "your_jwt_secret_key_example_do_not_use_in_production" # <--- ¡CRÍTICO! Reemplaza con una clave secreta muy fuerte. NUNCA uses esto en producción.
+    realm: "Limbus Auth Service" # Un nombre descriptivo para tu reino de autenticación
+
+token:
+    # Tiempos de expiración para los diferentes tipos de tokens, en milisegundos.
+    # Estos valores son utilizados por el TokenService para calcular la validez de los tokens.
+    access-token-expiration-millis: 3600000 # 1 hora (60 * 60 * 1000 ms)
+    refresh-token-expiration-millis: 604800000 # 7 días (7 * 24 * 60 * 60 * 1000 ms)
+    verification-token-expiration-millis: 86400000 # 24 horas (24 * 60 * 60 * 1000 ms)
+    password-reset-token-expiration-millis: 1800000 # 30 minutos (30 * 60 * 1000 ms)
+
+google:
+    # Configuración para la autenticación con Google OAuth 2.0
+    # El Client ID de tu aplicación en Google Cloud Platform.
+    # Este valor es usado por GoogleAuthClientImpl para verificar la audiencia del ID Token.
+    client_id: "your_google_client_id_example.apps.googleusercontent.com" # <--- ¡IMPORTANTE! Reemplaza con tu Client ID de Google
+
+database:
+    # Configuración de la base de datos PostgreSQL
+    driverClassName: org.postgresql.Driver # Driver de la base de datos
+    jdbcUrl: "jdbc:postgresql://your_db_host:5432/your_db_name" # <--- ¡IMPORTANTE! Reemplaza con la URL de tu base de datos (ej: "jdbc:postgresql://localhost:5432/limbus_auth_db")
+    user: "your_db_user" # <--- ¡IMPORTANTE! Reemplaza con tu nombre de usuario de la base de datos
+    password: "your_db_password" # <--- ¡IMPORTANTE! Reemplaza con la contraseña de tu base de datos
+    maxPoolSize: 10 # Opcional: Tamaño máximo del pool de conexiones (valor por defecto si no se especifica en HikariCP)

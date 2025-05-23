@@ -34,3 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Archivos de configuración sensibles
+services/auth-service/src/main/resources/application.yaml # Ignora el application.yaml del módulo auth-service
