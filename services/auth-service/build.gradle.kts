@@ -45,6 +45,13 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt) // Para manejar la autenticación JWT
     implementation(libs.jbcrypt)
 
+    // --- Ktor Client (para GoogleAuthClientImpl) ---
+    // Estas dependencias son necesarias para que GoogleAuthClientImpl pueda hacer peticiones HTTP
+    implementation(libs.ktor.client.core) // Cliente HTTP de Ktor
+    implementation(libs.ktor.client.cio) // Motor CIO para el cliente HTTP
+    implementation(libs.ktor.client.content.negotiation) // Para negociación de contenido en el cliente
+    // kotlinx.serialization.json ya está cubierta por ktor-serialization-kotlinx-json
+
     // --- Base de Datos (si el servicio de auth gestiona usuarios y credenciales) (usando el catálogo) ---
     implementation(libs.postgresql) // Driver de PostgreSQL
     implementation(libs.exposed.core)

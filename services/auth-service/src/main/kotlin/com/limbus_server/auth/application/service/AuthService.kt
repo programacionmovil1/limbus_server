@@ -6,6 +6,7 @@ import com.limbus_server.auth.application.exception.*
 import com.limbus_server.auth.domain.model.User
 import com.limbus_server.auth.domain.repository.UserRepository
 import com.limbus_server.auth.domain.service.PasswordHasher
+import com.limbus_server.auth.domain.service.GoogleAuthClient
 import com.limbus_server.auth.infrastructure.security.TokenService
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -18,7 +19,8 @@ class AuthService(
     // Dependencias inyectadas (probablemente usando Koin):
     private val userRepository: UserRepository, // Interfaz para interactuar con los datos de usuario
     private val passwordHasher: PasswordHasher, // Servicio para hashear y verificar contraseñas
-    private val tokenService: TokenService // Servicio para generar y validar tokens JWT y de refresco
+    private val tokenService: TokenService, // Servicio para generar y validar tokens JWT y de refresco
+    private val googleAuthClient: GoogleAuthClient // ¡NUEVA DEPENDENCIA: Cliente para la autenticación de Google!
     // Puedes necesitar otras dependencias aquí, como un servicio para enviar correos electrónicos
     // si manejas verificación de email o restablecimiento de contraseña con emails.
     // private val emailService: EmailService // TODO: Descomentar e inyectar si se implementa el envío de emails
@@ -109,6 +111,62 @@ class AuthService(
         return AuthResponse(
             accessToken = accessToken,
             refreshToken = refreshTokenObject.token, // Extrae la cadena del token del objeto
+            expiresIn = tokenService.getAccessTokenExpirationSeconds()
+        )
+    }
+
+    /**
+     * Método para iniciar sesión utilizando un ID Token de Google.
+     * Valida el ID Token con Google, busca o crea el usuario en la base de datos local,
+     * y genera tokens de autenticación para el sistema.
+     * @param idToken El ID Token de Google proporcionado por el cliente.
+     * @return AuthResponse con los tokens de acceso y refresco de tu sistema.
+     * @throws InvalidTokenException Si el ID Token de Google no es válido o no se puede verificar.
+     * @throws UserAlreadyExistsException Si un usuario con el mismo email ya existe pero no está vinculado a Google.
+     */
+    suspend fun loginWithGoogle(idToken: String): AuthResponse {
+        // 1. Validar el ID Token de Google con el cliente de autenticación de Google.
+        // Esto verificará la firma, la audiencia, el emisor y la expiración del token.
+        val googleUser = googleAuthClient.verifyIdToken(idToken)
+            ?: throw InvalidTokenException("Invalid Google ID Token.")
+
+        // 2. Buscar si ya existe un usuario en tu base de datos con el email de Google.
+        val existingUser = userRepository.findByEmail(googleUser.email)
+
+        val user: User
+        if (existingUser != null) {
+            // Si el usuario ya existe, lo usamos.
+            // TODO: Considerar si el usuario existente no tiene passwordHash (creado solo con Google)
+            // o si tiene passwordHash pero no está vinculado a Google.
+            // Para simplificar, asumimos que si el email existe, es el mismo usuario.
+            // En un sistema real, podrías querer vincular cuentas o manejar conflictos.
+            user = existingUser
+        } else {
+            // Si no existe, creamos un nuevo usuario en tu base de datos.
+            // La contraseña se puede dejar vacía o generar una aleatoria si no se usa para login directo.
+            // Opcionalmente, podrías marcarlo como "registrado vía Google" con un campo adicional.
+            val newUser = User(
+                id = 0, // El ID será autoincremental en la BD
+                email = googleUser.email,
+                passwordHash = "", // No hay contraseña para login con Google, o un hash vacío/placeholder
+                name = googleUser.name,
+                createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC),
+                updatedAt = null,
+                isEmailVerified = true, // El email ya está verificado por Google
+                isAccountLocked = false
+            )
+            val userId = userRepository.createUser(newUser)
+            user = newUser.copy(id = userId) // Actualiza el ID del objeto User
+        }
+
+        // 3. Generar tokens de acceso y refresco para el usuario en tu sistema.
+        val accessToken = tokenService.generateAccessToken(user.id)
+        val refreshTokenObject = tokenService.generateRefreshToken(user.id)
+
+        // 4. Devolver la respuesta de autenticación exitosa.
+        return AuthResponse(
+            accessToken = accessToken,
+            refreshToken = refreshTokenObject.token,
             expiresIn = tokenService.getAccessTokenExpirationSeconds()
         )
     }

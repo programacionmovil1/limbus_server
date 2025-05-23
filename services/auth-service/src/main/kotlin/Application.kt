@@ -30,6 +30,7 @@ fun Application.module() {
         modules(authModule + module {
             single { database } // Registra la instancia de Database
             single { environment.config } // Registra la ApplicationConfig de Ktor
+            single { environment } // Registra ApplicationEnvironment
         })
     }
 

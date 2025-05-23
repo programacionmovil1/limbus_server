@@ -79,11 +79,18 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.Created, response)
             }
 
-            // Ruta para inicio de sesión
+            // Ruta para inicio de sesión con credenciales tradicionales
             post("/login") {
                 val request = call.receive<LoginRequest>()
                 val response = authService.loginUser(request.email, request.password)
                 call.respond(HttpStatusCode.OK, response)
+            }
+
+            // Ruta para iniciar sesión con Google (OAuth/OIDC)
+            post("/google-login") {
+                val request = call.receive<GoogleLoginRequest>() // Recibe el ID Token de Google
+                val response = authService.loginWithGoogle(request.idToken) // Llama al servicio para procesar el login con Google
+                call.respond(HttpStatusCode.OK, response) // Responde con los tokens de tu sistema
             }
 
             // Ruta para refrescar tokens
@@ -96,9 +103,8 @@ fun Application.configureRouting() {
             // Ruta para iniciar el proceso de "Olvidé mi contraseña"
             post("/forgot-password") {
                 val request = call.receive<ForgotPasswordRequest>()
-                // CAMBIO AQUÍ: Captura la respuesta del servicio y la devuelve.
                 val response = authService.initiatePasswordReset(request.email)
-                call.respond(HttpStatusCode.OK, response) // Ahora responde con PasswordResetInitiateResponse
+                call.respond(HttpStatusCode.OK, response)
             }
 
             // Ruta para restablecer la contraseña
