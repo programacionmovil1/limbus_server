@@ -8,7 +8,7 @@ ktor:
 jwt:
     # Propiedades para la configuración de JSON Web Tokens (JWT)
     # Estas propiedades son utilizadas por el TokenService para firmar y verificar tokens.
-    audience: "your_app_client_id" # <--- ¡IMPORTANTE! Reemplaza con la audiencia de tu aplicación cliente (ej: "limbus-mobile-app")
+    audience: "your_app_client_id" # <--- ¡IMPORTANTE! Reemplaza con la audiencia de tu aplicación cliente (ej: "limbus_client")
     issuer: "https://your-auth-service-domain.com" # <--- ¡IMPORTANTE! Reemplaza con el dominio de tu servicio de autenticación (ej: "https://auth.limbus-server.com")
     secret: "your_jwt_secret_key_example_do_not_use_in_production" # <--- ¡CRÍTICO! Reemplaza con una clave secreta muy fuerte. NUNCA uses esto en producción.
     realm: "Limbus Auth Service" # Un nombre descriptivo para tu reino de autenticación
